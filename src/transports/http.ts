@@ -1,6 +1,7 @@
 import express from 'express'; // минимальный веб-сервер
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'; // HTTP-транспорт MCP
 import { createServer } from '../server.js'; // наш сервер с инструментами
+import { requireApiKey } from './auth.js'; // наш вахтёр
 
 const app = express(); // создаём приложение
 app.use(express.json()); // читаем JSON в теле запроса
@@ -11,7 +12,7 @@ app.get('/health', (_req, res) => {
 });
 
 // Главный адрес MCP. Вход: JSON-RPC в теле POST. Выход: JSON-RPC ответ.
-app.post('/mcp', async (req, res) => {
+app.post('/mcp', requireApiKey, async (req, res) => {
   try {
     const server = createServer(); // новый сервер на каждый запрос
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined }); // stateless: без сессий
